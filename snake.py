@@ -1,5 +1,5 @@
 # Importation des modules
-import pygame, random
+import pygame, random, pygame_menu
 
 #Initiation de pygame
 pygame.init()
@@ -11,6 +11,8 @@ police_score = pygame.font.Font(None, 40)
 #Couleur de jeu
 VERT = (173, 204, 96)
 VERT_FONCE = (43, 51, 24)
+BLACK = (22, 5, 11)
+ROUGE = (235, 0, 41)
 
 # Dimension des cases
 taille_case = 25
@@ -84,14 +86,14 @@ class Jeu:
             self.serpent.mettre_a_jour()
             self.verifier_collision_avec_nourriture()
             self.verifier_collision_avec_bords()
-            self.verifier_collision_avec_queue()
+            self.verifier_collision_avec_queue()            
 
     def verifier_collision_avec_nourriture(self):
         if self.serpent.corps[0] == self.nourriture.position:
             self.nourriture.position = self.nourriture.generer_position_aleatoire(self.serpent.corps)
             self.serpent.ajouter_segment = True
             self.score += 1
-            self.serpent.son_manger.play()
+            self.serpent.son_manger.play()            
 
     def verifier_collision_avec_bords(self):
         if self.serpent.corps[0][0] == nombre_cases or self.serpent.corps[0][0] == -1:
@@ -104,7 +106,7 @@ class Jeu:
         self.nourriture.position = self.nourriture.generer_position_aleatoire(self.serpent.corps)
         self.etat = "ARRETE"
         self.score = 0
-        self.serpent.son_collision_mur.play()
+        self.serpent.son_collision_mur.play()              
 
     def verifier_collision_avec_queue(self):
         queue_sans_tete = self.serpent.corps[1:]
@@ -117,37 +119,85 @@ surface_nourriture = pygame.image.load("Graphics/food.png")
 MISE_A_JOUR_SERPENT = pygame.USEREVENT
 pygame.time.set_timer(MISE_A_JOUR_SERPENT, 200)
 
-#///////////////////====================MA BOUCLE PRINCIPAL DU JEU=====================\\\\\\\\\\\\\\\\\\\\\\\
-while True:
-    for evenement in pygame.event.get():
-        if evenement.type == MISE_A_JOUR_SERPENT:
-            jeu.mettre_a_jour()
-        if evenement.type == pygame.QUIT:
-            pygame.quit()
-            
-        if evenement.type == pygame.KEYDOWN:
-            if jeu.etat == "ARRETE":
-                jeu.etat = "EN_COURS"
-            if evenement.key == pygame.K_UP and jeu.serpent.direction != (0, 1):
-                jeu.serpent.direction = (0, -1)
-            if evenement.key == pygame.K_DOWN and jeu.serpent.direction != (0, -1):
-                jeu.serpent.direction = (0, 1)
-            if evenement.key == pygame.K_LEFT and jeu.serpent.direction != (1, 0):
-                jeu.serpent.direction = (-1, 0)
-            if evenement.key == pygame.K_RIGHT and jeu.serpent.direction != (-1, 0):
-                jeu.serpent.direction = (1, 0)
+def game_over():
+    VRAI = True
+    game_loose = "Game Over"
+    escape = "Press 'Escape' to return"
+    end_score = f"Vous avez mangées {str(jeu.score)} pommes"
+    font_perdu = pygame.font.SysFont("arial", 110)
+    font_retour = pygame.font.SysFont("arial", 27)
+    font_score = pygame.font.SysFont("arial", 32)
+    ecran.fill(BLACK)
+    if jeu.etat == "ARRETE":
+        affichage_perdu = font_perdu.render(game_loose, VRAI, ROUGE)
+        ecran.blit(affichage_perdu, (90, 180))
+        affichage_retour = font_retour.render(escape, VRAI, ROUGE)
+        ecran.blit(affichage_retour,(210, 420))
+        affichage_score = font_score.render(end_score, VRAI, (222, 54, 189))
+        ecran.blit(affichage_score, (140, 320))
+   
+             
 
-    # Dessin
-    ecran.fill(VERT)
-    pygame.draw.rect(ecran, VERT_FONCE,
-                     (DECALAGE - 5, DECALAGE - 5, taille_case * nombre_cases + 10, taille_case * nombre_cases + 10), 5)
-    jeu.dessiner()
-    surface_titre = police_titre.render("Rétro Snake", True, VERT_FONCE)
-    surface_score = police_score.render(str(jeu.score), True, VERT_FONCE)
-    ecran.blit(surface_titre, (DECALAGE - 5, 20))
-    ecran.blit(surface_score, (DECALAGE - 5, DECALAGE + taille_case * nombre_cases + 10))
-    horloge = pygame.time.Clock()
-    fps = 200
-    horloge.tick(fps)
-    pygame.display.update()
+#///////////////////====================MENU=====================\\\\\\\\\\\\\\\\\\\\\\\
+
+    # Importer la classe Theme
+from pygame_menu.themes import Theme
+
+    # Personalisation des couleurs de mon menu
+theme_vert_personnalise = Theme(background_color=(117, 180, 87),  # Ta nuance de vert
+                                title_background_color=BLACK,
+                                title_font_color= (255,255,255))  # Couleur du texte du titre
+
+    # Utiliser le thème personnalisé lors de la création du menu
+menu = pygame_menu.Menu('SNAKE', 2 * DECALAGE + taille_case * nombre_cases, 2 * DECALAGE + taille_case * nombre_cases, theme=theme_vert_personnalise)
+    # Ajout des boutons
+menu.add.button("PLAY", lambda: playing())
+menu.add.button("FAIRE JOUER L'IA")
+menu.add.button('LEAVE', pygame_menu.events.EXIT)
+
+#///////////////////=========================MA FONCTION JEU==========================\\\\\\\\\\\\\\\\\\\\\\\
+def playing():
+#///////////////////====================MA BOUCLE PRINCIPAL DU JEU=====================\\\\\\\\\\\\\\\\\\\\\\\
+    while 1:
+        for evenement in pygame.event.get():
+            if evenement.type == MISE_A_JOUR_SERPENT:
+                jeu.mettre_a_jour()
+            if evenement.type == pygame.QUIT:
+                pygame.quit()
+
+            if evenement.type == pygame.KEYDOWN:            
+                if jeu.etat == "ARRETE":
+                    jeu.etat = "EN_COURS"                                       
+                if evenement.key == pygame.K_ESCAPE:
+                    return menu
+                if evenement.key == pygame.K_UP and jeu.serpent.direction != (0, 1):
+                    jeu.serpent.direction = (0, -1)
+                if evenement.key == pygame.K_DOWN and jeu.serpent.direction != (0, -1):
+                    jeu.serpent.direction = (0, 1)
+                if evenement.key == pygame.K_LEFT and jeu.serpent.direction != (1, 0):
+                    jeu.serpent.direction = (-1, 0)
+                if evenement.key == pygame.K_RIGHT and jeu.serpent.direction != (-1, 0):
+                    jeu.serpent.direction = (1, 0)
+        
+        # Dessin
+        ecran.fill(VERT)
+        pygame.draw.rect(ecran, VERT_FONCE,
+                        (DECALAGE - 5, DECALAGE - 5, taille_case * nombre_cases + 10, taille_case * nombre_cases + 10), 5)
+        jeu.dessiner()
+        surface_titre = police_titre.render("Rétro Snake", True, VERT_FONCE)
+        surface_score = police_score.render(str(jeu.score), True, VERT_FONCE)
+        ecran.blit(surface_titre, (DECALAGE - 5, 20))
+        ecran.blit(surface_score, (DECALAGE - 5, DECALAGE + taille_case * nombre_cases + 10))
+        
+        # Afficher l'écran de game over si la partie est terminée
+        if jeu.etat == "ARRETE":
+            game_over()
+        
+        horloge = pygame.time.Clock()
+        fps = 200
+        horloge.tick(fps)
+        pygame.display.update()
+
+# Run the menu loop
+menu.mainloop(ecran)
    
