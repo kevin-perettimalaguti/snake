@@ -14,13 +14,13 @@ class IA:
         diff_y = nourriture_y - tete_y
 
         # Logique de décision de l'IA basée sur la position de la tête et de la nourriture
-        if diff_x > 0:
+        if diff_x > 0 and (tete_x + 1, tete_y) not in self.jeu.serpent.corps[1:]:
             return (1, 0)  # Aller vers la droite
-        elif diff_x < 0:
+        elif diff_x < 0 and (tete_x - 1, tete_y) not in self.jeu.serpent.corps[1:]:
             return (-1, 0)  # Aller vers la gauche
-        elif diff_y > 0:
+        elif diff_y > 0 and (tete_x, tete_y + 1) not in self.jeu.serpent.corps[1:]:
             return (0, 1)  # Aller vers le bas
-        elif diff_y < 0:
+        elif diff_y < 0 and (tete_x, tete_y - 1) not in self.jeu.serpent.corps[1:]:
             return (0, -1)  # Aller vers le haut
         else:
             # Si la tête est alignée avec la nourriture, choisis une direction aléatoire
