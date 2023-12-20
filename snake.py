@@ -152,15 +152,16 @@ def afficher_menu():
     menu = pygame_menu.Menu('SNAKE', 2 * DECALAGE + taille_case * nombre_cases, 2 * DECALAGE + taille_case * nombre_cases, theme=theme_vert_personnalise)
     # Ajout des boutons
     menu.add.button("PLAY", lambda: playing())
-    menu.add.button("FAIRE JOUER L'IA")
+    menu.add.button("FAIRE JOUER L'IA", lambda: playing_ia())
     menu.add.button('LEAVE', pygame_menu.events.EXIT)
 
     return menu  # Retourne le menu créé
+        
 
-# /////////////////////====================FONCTION PRINCIPALE DU JEU=====================\\\\\\\\\\\\\\\\\\\\\\
+# /////////////////////====================FONCTION PRINCIPALE DU JOUEUR=====================\\\\\\\\\\\\\\\\\\\\\\
 def playing():
     # //////////////////====================BOUCLE PRINCIPALE=====================\\\\\\\\\\\\\\\\\\\\\\
-    jeu.score = 0
+    jeu.score = 0   
         
     while 1:
         for evenement in pygame.event.get():
@@ -192,6 +193,52 @@ def playing():
         surface_score = police_score.render(str(jeu.score), True, VERT_FONCE)
         ecran.blit(surface_titre, (DECALAGE - 5, 20))
         ecran.blit(surface_score, (DECALAGE - 5, DECALAGE + taille_case * nombre_cases + 10))        
+
+        # Afficher l'écran de game over si la partie est terminée
+        if jeu.etat == "ARRETE":
+            jeu.game_over()
+
+        horloge = pygame.time.Clock()
+        fps = 200
+        horloge.tick(fps)
+        pygame.display.update()
+        
+        
+# ALLER PLUS LOIN... 
+      
+    # Importation de l'IA
+from ia import IA
+
+    # //////////////====================FONCTION PRINCIPALE DU DE L'IA=====================\\\\\\\\\\\\\\\\\\
+def playing_ia():
+        # /////////////////=====================BOUCLE PRINCIPALE=======================\\\\\\\\\\\\\\\\\\\
+    jeu.score = 0
+    ia = IA(jeu)
+
+    while 1:
+        for evenement in pygame.event.get():
+            if evenement.type == MISE_A_JOUR_SERPENT:
+                # Ajoute l'appel à la méthode jouer de l'IA avant de mettre à jour le serpent
+                ia.jouer()
+                jeu.mettre_a_jour()
+            if evenement.type == pygame.QUIT:
+                pygame.quit()
+
+            if evenement.type == pygame.KEYDOWN:
+                if jeu.etat == "ARRETE":
+                    jeu.etat = "EN_COURS"                    
+                if evenement.key == pygame.K_ESCAPE:
+                    return afficher_menu()               
+
+        # Dessin
+        ecran.fill(VERT)
+        pygame.draw.rect(ecran, VERT_FONCE,
+                        (DECALAGE - 5, DECALAGE - 5, taille_case * nombre_cases + 10, taille_case * nombre_cases + 10), 5)
+        jeu.dessiner()
+        surface_titre = police_titre.render("Rétro Snake", True, VERT_FONCE)
+        surface_score = police_score.render(str(jeu.score), True, VERT_FONCE)
+        ecran.blit(surface_titre, (DECALAGE - 5, 20))
+        ecran.blit(surface_score, (DECALAGE - 5, DECALAGE + taille_case * nombre_cases + 10))
 
         # Afficher l'écran de game over si la partie est terminée
         if jeu.etat == "ARRETE":
