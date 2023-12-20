@@ -17,7 +17,7 @@ ROUGE = (235, 0, 41)
 # Dimension des cases
 taille_case = 25
 nombre_cases = 20
-
+snake_speed = 15
 DECALAGE = 75
 
 # Définition de la fenêtre principale
@@ -136,7 +136,7 @@ jeu = Jeu()
 surface_nourriture = pygame.image.load("Graphics/food.png")
 
 MISE_A_JOUR_SERPENT = pygame.USEREVENT
-pygame.time.set_timer(MISE_A_JOUR_SERPENT, 200)
+pygame.time.set_timer(MISE_A_JOUR_SERPENT, 90)
 
 # /////////////////////====================MENU====================\\\\\\\\\\\\\\\\\\\\\\\\\\\
 # Importer la classe Theme
@@ -155,8 +155,7 @@ def afficher_menu():
     menu.add.button("FAIRE JOUER L'IA", lambda: playing_ia())
     menu.add.button('LEAVE', pygame_menu.events.EXIT)
 
-    return menu  # Retourne le menu créé
-        
+    return menu  # Retourne le menu créé        
 
 # /////////////////////================FONCTION PRINCIPALE DU JOUEUR=====================\\\\\\\\\\\\\\\\\\\\\\
 def playing():
@@ -196,11 +195,8 @@ def playing():
 
         # Afficher l'écran de game over si la partie est terminée
         if jeu.etat == "ARRETE":
-            jeu.game_over()
-
-        horloge = pygame.time.Clock()
-        fps = 200
-        horloge.tick(fps)
+            jeu.game_over()       
+        
         pygame.display.update()
         
         
@@ -242,11 +238,8 @@ def playing_ia():
 
         # Afficher l'écran de game over si la partie est terminée
         if jeu.etat == "ARRETE":
-            jeu.game_over()
-
-        horloge = pygame.time.Clock()
-        fps = 200
-        horloge.tick(fps)
+            jeu.game_over()              
+    
         pygame.display.update()
 
 # Exécute la boucle du menu
