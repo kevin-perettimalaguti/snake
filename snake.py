@@ -98,8 +98,8 @@ class Jeu:
         self.serpent.reinitialiser()
         self.nourriture.position = self.nourriture.generer_position_aleatoire(self.serpent.corps)
         self.etat = "ARRETE"
-        self.score = 0
-        self.serpent.son_collision_mur.play()              
+        self.serpent.son_collision_mur.play()
+                      
 
     def verifier_collision_avec_queue(self):
         queue_sans_tete = self.serpent.corps[1:]
@@ -110,8 +110,27 @@ class Jeu:
         if self.serpent.corps[0] == self.nourriture.position:
             self.nourriture.position = self.nourriture.generer_position_aleatoire(self.serpent.corps)
             self.serpent.ajouter_segment = True
-            self.score += 1
-            self.serpent.son_manger.play()      
+            self.score += 1            
+            self.serpent.son_manger.play()    
+            
+    def game_over(self):
+        VRAI = True
+        game_loose = "Game Over"
+        escape = "Press 'Escape' to return"
+        #print(jeu.verifier_collision_avec_nourriture(self))
+        end_score = f"Vous avez mangées {jeu.score} pommes"
+        font_perdu = pygame.font.SysFont("arial", 110)
+        font_retour = pygame.font.SysFont("arial", 27)
+        font_score = pygame.font.SysFont("arial", 32)
+        ecran.fill(BLACK)
+        if self.etat == "ARRETE":                
+            affichage_perdu = font_perdu.render(game_loose, VRAI, ROUGE)
+            ecran.blit(affichage_perdu, (90, 180))
+            affichage_retour = font_retour.render(escape, VRAI, ROUGE)
+            ecran.blit(affichage_retour, (210, 420))
+            affichage_score = font_score.render(end_score, VRAI, (222, 54, 189))
+            ecran.blit(affichage_score, (125, 320))
+            pygame.display.update()      
 
 jeu = Jeu()
 surface_nourriture = pygame.image.load("Graphics/food.png")
@@ -141,6 +160,8 @@ def afficher_menu():
 # /////////////////////====================FONCTION PRINCIPALE DU JEU=====================\\\\\\\\\\\\\\\\\\\\\\
 def playing():
     # //////////////////====================BOUCLE PRINCIPALE=====================\\\\\\\\\\\\\\\\\\\\\\
+    jeu.score = 0
+        
     while 1:
         for evenement in pygame.event.get():
             if evenement.type == MISE_A_JOUR_SERPENT:
@@ -170,29 +191,11 @@ def playing():
         surface_titre = police_titre.render("Rétro Snake", True, VERT_FONCE)
         surface_score = police_score.render(str(jeu.score), True, VERT_FONCE)
         ecran.blit(surface_titre, (DECALAGE - 5, 20))
-        ecran.blit(surface_score, (DECALAGE - 5, DECALAGE + taille_case * nombre_cases + 10))
-        
-        def game_over():
-            VRAI = True
-            game_loose = "Game Over"
-            escape = "Press 'Escape' to return"
-            end_score = f"Nombres de pommes mangées : {jeu.score}"
-            font_perdu = pygame.font.SysFont("arial", 110)
-            font_retour = pygame.font.SysFont("arial", 27)
-            font_score = pygame.font.SysFont("arial", 32)
-            ecran.fill(BLACK)
-            if jeu.etat == "ARRETE":                
-                affichage_perdu = font_perdu.render(game_loose, VRAI, ROUGE)
-                ecran.blit(affichage_perdu, (90, 180))
-                affichage_retour = font_retour.render(escape, VRAI, ROUGE)
-                ecran.blit(affichage_retour, (210, 420))
-                affichage_score = font_score.render(end_score, VRAI, (222, 54, 189))
-                ecran.blit(affichage_score, (120, 320))
-                pygame.display.update()
+        ecran.blit(surface_score, (DECALAGE - 5, DECALAGE + taille_case * nombre_cases + 10))        
 
         # Afficher l'écran de game over si la partie est terminée
         if jeu.etat == "ARRETE":
-            game_over()
+            jeu.game_over()
 
         horloge = pygame.time.Clock()
         fps = 200
@@ -201,3 +204,4 @@ def playing():
 
 # Exécute la boucle du menu
 afficher_menu().mainloop(ecran)
+
